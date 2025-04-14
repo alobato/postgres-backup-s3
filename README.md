@@ -68,17 +68,17 @@ Suas configurações serão salvas em `~/.s3cfg`.
 
 ### 1. Baixar o script
 
-Salve o script `postgres_backup.sh` em um local adequado, por exemplo:
+Salve o script `postgres-backup-s3.sh` em um local adequado, por exemplo:
 
 ```bash
-sudo mkdir -p /usr/local/scripts
-sudo cp postgres_backup.sh /usr/local/scripts/
+sudo mkdir -p ~/scripts
+sudo cp postgres-backup-s3.sh ~/scripts
 ```
 
 ### 2. Tornar o script executável
 
 ```bash
-sudo chmod +x /usr/local/scripts/postgres_backup.sh
+sudo chmod +x ~/scripts/postgres-backup-s3.sh
 ```
 
 ### 3. Editar as configurações
@@ -86,14 +86,14 @@ sudo chmod +x /usr/local/scripts/postgres_backup.sh
 Abra o script e ajuste as configurações no início:
 
 ```bash
-sudo nano /usr/local/scripts/postgres_backup.sh
+sudo nano ~/scripts/postgres-backup-s3.sh
 ```
 
 #### Configurações importantes:
 
 ```bash
 # Diretório onde os backups serão armazenados
-BACKUP_DIR="/var/backups/postgres"
+BACKUP_DIR="~/backups/postgres"
 # Nome do banco de dados
 DB_NAME="seu_banco_de_dados"
 # Usuário do PostgreSQL
@@ -109,19 +109,18 @@ NOTIFICATION_URL="https://sua-url-de-notificacao.com/api/notify"
 # Quantidade de backups a manter
 KEEP_BACKUPS=5
 # Arquivo de log
-LOG_FILE="/var/log/postgres_backup.log"
+LOG_FILE="~/backups/log/postgres-backup-s3.log"
 # Configurações do S3
 S3_BUCKET="s3://seu-bucket-s3/backups/postgres"
 # Número de dias para reter backups no S3 (0 = manter indefinidamente)
-S3_RETENTION_DAYS=30
+S3_RETENTION_DAYS=10
 ```
 
 ### 4. Criar diretórios necessários
 
 ```bash
-sudo mkdir -p /var/backups/postgres
-sudo touch /var/log/postgres_backup.log
-sudo chown $(whoami) /var/log/postgres_backup.log
+sudo mkdir -p ~/backups/postgres
+sudo touch ~/backups/log/postgres-backup-s3.log
 ```
 
 ## Configuração do cron para execução automática
@@ -137,7 +136,7 @@ sudo crontab -e
 ### 2. Adicionar a linha para execução diária (exemplo: às 2 da manhã)
 
 ```
-0 2 * * * /usr/local/scripts/postgres_backup.sh
+0 2 * * * ~/scripts/postgres-backup-s3.sh
 ```
 
 ## Métodos alternativos para lidar com a senha do PostgreSQL
@@ -161,7 +160,7 @@ chmod 600 ~/.pgpass
 Você pode definir a variável PGPASSWORD no crontab:
 
 ```
-0 2 * * * PGPASSWORD="sua_senha" /usr/local/scripts/postgres_backup.sh
+0 2 * * * PGPASSWORD="sua_senha" ~/scripts/postgres-backup-s3.sh
 ```
 
 E então remover as linhas de exportação/unset no script.
@@ -171,13 +170,13 @@ E então remover as linhas de exportação/unset no script.
 Execute o script manualmente para verificar se tudo está funcionando corretamente:
 
 ```bash
-sudo /usr/local/scripts/postgres_backup.sh
+sudo ~/scripts/postgres-backup-s3.sh
 ```
 
 Verifique o arquivo de log para confirmar que o backup foi criado com sucesso:
 
 ```bash
-tail -n 20 /var/log/postgres_backup.log
+tail -n 20 ~/backups/log/postgres-backup-s3.log
 ```
 
 ## Resolução de Problemas
@@ -187,7 +186,7 @@ tail -n 20 /var/log/postgres_backup.log
 Se o script estiver falhando devido a problemas de permissão:
 
 ```bash
-sudo chown -R $(whoami):$(whoami) /var/backups/postgres
+sudo chown -R $(whoami):$(whoami) ~/backups/postgres
 ```
 
 ### Problemas com s3cmd
@@ -215,7 +214,7 @@ pg_dump -h localhost -U seu_usuario -d seu_banco_de_dados -f /tmp/test_dump.sql
 ## Segurança
 
 - Não armazene senhas diretamente no script em ambientes de produção
-- Assegure-se de que o arquivo `postgres_backup.sh` tenha permissões restritas (ex: 700)
+- Assegure-se de que o arquivo `postgres-backup-s3.sh` tenha permissões restritas (ex: 700)
 - Considere o uso de IAM roles para o S3 em vez de chaves de acesso codificadas
 
 ## Personalização
